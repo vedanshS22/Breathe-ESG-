@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Breathe ESG Analyst Review</title>
+    <style>
+      :root {
+        color: #0f172a;
+        background: #f8fafc;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      .shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 248px 1fr;
+      }
+
+      aside {
+        background: #ffffff;
+        border-right: 1px solid #e2e8f0;
+        padding: 18px;
+      }
+
+      .brand {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding-bottom: 18px;
+        border-bottom: 1px solid #e2e8f0;
+        margin-bottom: 18px;
+      }
+
+      .mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: #059669;
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+      }
+
+      nav button {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        text-align: left;
+        border-radius: 8px;
+        padding: 10px 12px;
+        color: #475569;
+        font-weight: 650;
+        cursor: pointer;
+        margin-bottom: 6px;
+      }
+
+      nav button.active {
+        background: #0f172a;
+        color: #fff;
+      }
+
+      main {
+        padding: 26px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: center;
+        margin-bottom: 22px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: 0;
+      }
+
+      .muted {
+        color: #64748b;
+        font-size: 13px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .card,
+      .panel {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .card .label {
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .card .value {
+        font-size: 28px;
+        font-weight: 750;
+        margin-top: 7px;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 14px;
+        margin-bottom: 16px;
+      }
+
+      select,
+      input {
+        height: 38px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 0 10px;
+        background: #fff;
+        color: #0f172a;
+      }
+
+      button.primary,
+      button.secondary {
+        height: 38px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        padding: 0 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button.primary {
+        background: #059669;
+        color: white;
+      }
+
+      button.secondary {
+        background: #fff;
+        border-color: #cbd5e1;
+        color: #334155;
+      }
+
+      button.danger {
+        color: #be123c;
+        border-color: #fecdd3;
+      }
+
+      button.danger:hover {
+        background: #fff1f2;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      th {
+        text-align: left;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: 11px;
+        text-transform: uppercase;
+        padding: 11px;
+      }
+
+      td {
+        border-top: 1px solid #e2e8f0;
+        padding: 11px;
+        vertical-align: top;
+      }
+
+      tr.suspicious {
+        background: #fffbeb;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 7px;
+        border: 1px solid #e2e8f0;
+        padding: 4px 7px;
+        font-size: 12px;
+        font-weight: 750;
+      }
+
+      .sap {
+        background: #eef2ff;
+        color: #3730a3;
+        border-color: #c7d2fe;
+      }
+
+      .utility {
+        background: #ecfeff;
+        color: #0e7490;
+        border-color: #a5f3fc;
+      }
+
+      .travel {
+        background: #f5f3ff;
+        color: #6d28d9;
+        border-color: #ddd6fe;
+      }
+
+      .pending,
+      .partial {
+        background: #fffbeb;
+        color: #92400e;
+        border-color: #fde68a;
+      }
+
+      .approved,
+      .processed {
+        background: #ecfdf5;
+        color: #047857;
+        border-color: #a7f3d0;
+      }
+
+      .rejected,
+      .failed {
+        background: #fff1f2;
+        color: #be123c;
+        border-color: #fecdd3;
+      }
+
+      .section {
+        margin-top: 24px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .panel h2 {
+        margin: 0;
+        padding: 14px;
+        font-size: 14px;
+        text-transform: uppercase;
+        color: #475569;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .panel-content {
+        padding: 14px;
+      }
+
+      .row {
+        border-bottom: 1px solid #e2e8f0;
+        padding: 12px 0;
+      }
+
+      .row:last-child {
+        border-bottom: 0;
+      }
+
+      @media (max-width: 900px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+
+        aside {
+          position: static;
+        }
+
+        .metrics,
+        .split {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside>
+        <div class="brand">
+          <div class="mark">B</div>
+          <div>
+            <strong>Breathe ESG</strong>
+            <div class="muted">Analyst operations</div>
+          </div>
+        </div>
+        <nav>
+          <button class="active" data-view="dashboard">Dashboard</button>
+          <button data-view="review">Review Queue</button>
+          <button data-view="uploads">Uploads</button>
+          <button data-view="audit">Audit</button>
+        </nav>
+      </aside>
+
+      <main>
+        <header>
+          <div>
+            <h1 id="title">Operational dashboard</h1>
+            <div class="muted">Raw uploads, normalized rows, suspicious records, and audit locks.</div>
+            <div id="global-message" class="muted" style="margin-top: 6px"></div>
+          </div>
+          <div style="display: flex; gap: 10px">
+            <button class="secondary danger" onclick="deleteAllIngestionData()">Delete All</button>
+            <button class="secondary" onclick="loadAll()">Refresh</button>
+          </div>
+        </header>
+
+        <section id="dashboard-view">
+          <div class="grid metrics" id="metrics"></div>
+          <div class="section panel">
+            <h2>Attention queue</h2>
+            <div id="attention"></div>
+          </div>
+        </section>
+
+        <section id="review-view" class="hidden">
+          <div class="toolbar panel">
+            <select id="status-filter" onchange="loadRecords()">
+              <option value="pending">Pending</option>
+              <option value="">All statuses</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+            <select id="source-filter" onchange="loadRecords()">
+              <option value="">All sources</option>
+              <option value="sap">SAP</option>
+              <option value="utility">Utility</option>
+              <option value="travel">Travel</option>
+            </select>
+            <select id="suspicious-filter" onchange="loadRecords()">
+              <option value="">Any anomaly state</option>
+              <option value="true">Suspicious only</option>
+              <option value="false">Clear only</option>
+            </select>
+          </div>
+          <div id="records"></div>
+        </section>
+
+        <section id="uploads-view" class="hidden">
+          <div class="panel" style="margin-bottom: 16px">
+            <h2>Upload source file</h2>
+            <div class="panel-content">
+              <form id="upload-form" class="toolbar" style="padding: 0; margin: 0">
+                <select id="company-select" required>
+                  <option value="">Select company</option>
+                </select>
+                <input id="company-name" placeholder="New company name" />
+                <button class="secondary" type="button" onclick="createCompany()">Create Company</button>
+                <select id="upload-source-type" required>
+                  <option value="sap">SAP fuel/procurement</option>
+                  <option value="utility">Utility electricity</option>
+                  <option value="travel">Corporate travel</option>
+                </select>
+                <input id="upload-file" type="file" accept=".csv,.json" required />
+                <button class="primary" type="submit">Ingest File</button>
+              </form>
+              <div id="upload-message" class="muted" style="margin-top: 10px">
+                Upload a CSV/JSON file. The backend will preserve the raw artifact, normalize rows, flag suspicious data, and refresh the review queue.
+              </div>
+            </div>
+          </div>
+          <div class="panel" style="margin-bottom: 16px">
+            <h2>Danger zone</h2>
+            <div class="panel-content">
+              <button class="secondary danger" type="button" onclick="deleteAllIngestionData()">Delete All Ingestion Data</button>
+              <div class="muted" style="margin-top: 10px">
+                Clears uploads, normalized records, suspicious flags, audit logs, ingestion issues, and uploaded raw files. Companies remain.
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Recent uploads</h2>
+            <div id="uploads"></div>
+          </div>
+        </section>
+
+        <section id="audit-view" class="hidden">
+          <div class="split">
+            <div class="panel">
+              <h2>Audit log</h2>
+              <div class="panel-content" id="audit"></div>
+            </div>
+            <div class="panel">
+              <h2>Ingestion issues</h2>
+              <div class="panel-content" id="issues"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const api = async (path, options = {}) => {
+        const response = await fetch(`/api${path}`, {
+          headers: { "Content-Type": "application/json" },
+          ...options,
+        });
+        return response.json();
+      };
+
+      const uploadApi = async (formData) => {
+        const response = await fetch("/api/uploads/", {
+          method: "POST",
+          body: formData,
+        });
+        return response.json();
+      };
+
+      const escapeHtml = (value) =>
+        String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+
+      const badge = (value, extra = "") =>
+        `<span class="badge ${escapeHtml(extra || value)}">${escapeHtml(value)}</span>`;
+
+      function table(records, actions = false) {
+        if (!records.length) {
+          return `<div class="panel-content muted">No records found.</div>`;
+        }
+        return `
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Scope</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Suspicious</th>
+                <th>Status</th>
+                ${actions ? "<th>Actions</th>" : ""}
+              </tr>
+            </thead>
+            <tbody>
+              ${records
+                .map(
+                  (record) => `
+                  <tr class="${record.is_suspicious ? "suspicious" : ""}">
+                    <td>${badge(record.source_type, record.source_type)}</td>
+                    <td>${escapeHtml(record.scope)}</td>
+                    <td>
+                      <strong>${escapeHtml(record.category)}</strong>
+                      <div class="muted">${escapeHtml(record.source_reference || "-")}</div>
+                    </td>
+                    <td>${escapeHtml(record.quantity ?? "-")} ${escapeHtml(record.normalized_unit)}</td>
+                    <td>${record.is_suspicious ? escapeHtml(record.suspicious_reason) : "Clear"}</td>
+                    <td>${badge(record.locked ? `${record.status} locked` : record.status, record.status)}</td>
+                    ${
+                      actions
+                        ? `<td>
+                            <button class="primary" onclick="approve(${record.id})" ${record.locked ? "disabled" : ""}>Approve</button>
+                            <button class="secondary" onclick="rejectRecord(${record.id})" ${record.locked ? "disabled" : ""}>Reject</button>
+                          </td>`
+                        : ""
+                    }
+                  </tr>`,
+                )
+                .join("")}
+            </tbody>
+          </table>`;
+      }
+
+      async function loadDashboard() {
+        const payload = await api("/dashboard/");
+        const data = payload.data;
+        const counts = data.counts;
+        document.querySelector("#metrics").innerHTML = [
+          ["Uploads", counts.uploads],
+          ["Pending", counts.pending],
+          ["Suspicious", counts.suspicious],
+          ["Approved", counts.approved],
+        ]
+          .map(([label, value]) => `<div class="card"><div class="label">${label}</div><div class="value">${value}</div></div>`)
+          .join("");
+        document.querySelector("#attention").innerHTML = table(data.attention_queue);
+      }
+
+      async function loadRecords() {
+        const params = new URLSearchParams();
+        const status = document.querySelector("#status-filter").value;
+        const source = document.querySelector("#source-filter").value;
+        const suspicious = document.querySelector("#suspicious-filter").value;
+        if (status) params.set("status", status);
+        if (source) params.set("source_type", source);
+        if (suspicious) params.set("suspicious", suspicious);
+        params.set("page_size", "100");
+        const payload = await api(`/records/?${params.toString()}`);
+        document.querySelector("#records").innerHTML = table(payload.data.results, true);
+      }
+
+      async function loadUploads() {
+        const payload = await api("/uploads/");
+        document.querySelector("#uploads").innerHTML = payload.data.results.length
+          ? payload.data.results
+              .map(
+                (upload) => `
+                  <div class="row">
+                    <strong>${escapeHtml(upload.original_filename)}</strong>
+                    <div class="muted">${upload.successful_count}/${upload.row_count} rows · ${upload.failed_count} issues</div>
+                    <div style="margin-top:8px">${badge(upload.status, upload.status)}</div>
+                  </div>`,
+              )
+              .join("")
+          : `<div class="panel-content muted">No uploads yet.</div>`;
+      }
+
+      async function loadCompanies() {
+        const payload = await api("/companies/");
+        const select = document.querySelector("#company-select");
+        const current = select.value;
+        select.innerHTML = `<option value="">Select company</option>`;
+        payload.data.results.forEach((company) => {
+          const option = document.createElement("option");
+          option.value = company.id;
+          option.textContent = company.name;
+          select.appendChild(option);
+        });
+        if (current) {
+          select.value = current;
+        } else if (payload.data.results.length) {
+          select.value = payload.data.results[0].id;
+        }
+      }
+
+      async function createCompany() {
+        const input = document.querySelector("#company-name");
+        const message = document.querySelector("#upload-message");
+        const name = input.value.trim();
+        if (!name) {
+          message.textContent = "Enter a company name first.";
+          return;
+        }
+        const payload = await api("/companies/", {
+          method: "POST",
+          body: JSON.stringify({ name }),
+        });
+        if (!payload.success) {
+          message.textContent = payload.error || "Company creation failed.";
+          return;
+        }
+        input.value = "";
+        await loadCompanies();
+        document.querySelector("#company-select").value = payload.data.id;
+        message.textContent = `Company created: ${payload.data.name}`;
+      }
+
+      async function loadAudit() {
+        const [auditPayload, issuePayload] = await Promise.all([api("/audit-logs/"), api("/ingestion-issues/")]);
+        document.querySelector("#audit").innerHTML = auditPayload.data.results.length
+          ? auditPayload.data.results
+              .map(
+                (log) => `
+                  <div class="row">
+                    <strong>${escapeHtml(log.action)}</strong>
+                    <div class="muted">Record #${log.record} · ${escapeHtml(log.changed_by)}</div>
+                    <div class="muted">${new Date(log.timestamp).toLocaleString()}</div>
+                  </div>`,
+              )
+              .join("")
+          : `<div class="muted">No audit events yet.</div>`;
+        document.querySelector("#issues").innerHTML = issuePayload.data.results.length
+          ? issuePayload.data.results
+              .map(
+                (issue) => `
+                  <div class="row">
+                    <strong>${escapeHtml(issue.stage)}</strong>
+                    <div>${escapeHtml(issue.message)}</div>
+                    <div class="muted">${escapeHtml(issue.upload_filename)} · row ${escapeHtml(issue.row_number || "-")}</div>
+                  </div>`,
+              )
+              .join("")
+          : `<div class="muted">No ingestion issues.</div>`;
+      }
+
+      async function approve(id) {
+        await api(`/records/${id}/approve/`, {
+          method: "POST",
+          body: JSON.stringify({ actor: "analyst@breathe.local" }),
+        });
+        await loadAll();
+      }
+
+      async function rejectRecord(id) {
+        await api(`/records/${id}/reject/`, {
+          method: "POST",
+          body: JSON.stringify({ actor: "analyst@breathe.local", reason: "Rejected in analyst UI" }),
+        });
+        await loadAll();
+      }
+
+      async function deleteAllIngestionData() {
+        const message = document.querySelector("#upload-message") || document.querySelector("#global-message");
+        const confirmed = window.confirm(
+          "Delete all uploaded files, normalized records, audit logs, and ingestion issues? Companies will remain.",
+        );
+        if (!confirmed) {
+          return;
+        }
+
+        const payload = await api("/delete-all-ingestion-data/", {
+          method: "POST",
+          body: JSON.stringify({ confirm: true }),
+        });
+        if (!payload.success) {
+          message.textContent = payload.error || "Delete failed.";
+          return;
+        }
+        message.textContent = `Deleted ${payload.data.records} records, ${payload.data.uploads} uploads, ${payload.data.audit_logs} audit logs, and ${payload.data.ingestion_issues} ingestion issues.`;
+        await loadAll();
+        window.location.reload();
+      }
+
+      async function loadAll() {
+        await Promise.all([loadDashboard(), loadRecords(), loadUploads(), loadAudit(), loadCompanies()]);
+      }
+
+      document.querySelector("#upload-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const message = document.querySelector("#upload-message");
+        const companyId = document.querySelector("#company-select").value;
+        const sourceType = document.querySelector("#upload-source-type").value;
+        const file = document.querySelector("#upload-file").files[0];
+        if (!companyId || !sourceType || !file) {
+          message.textContent = "Select company, source type, and file before ingesting.";
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("company_id", companyId);
+        formData.append("source_type", sourceType);
+        formData.append("file", file);
+
+        message.textContent = "Uploading and normalizing...";
+        const payload = await uploadApi(formData);
+        if (!payload.success) {
+          message.textContent = payload.error || "Upload failed.";
+          return;
+        }
+
+        document.querySelector("#upload-file").value = "";
+        message.textContent = `Ingested ${payload.data.original_filename}: ${payload.data.successful_count} records, ${payload.data.failed_count} issues.`;
+        await loadAll();
+      });
+
+      document.querySelectorAll("nav button").forEach((button) => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll("nav button").forEach((item) => item.classList.remove("active"));
+          button.classList.add("active");
+          const view = button.dataset.view;
+          document.querySelector("#title").textContent =
+            view === "dashboard"
+              ? "Operational dashboard"
+              : view === "review"
+                ? "Review queue"
+                : view === "uploads"
+                  ? "Upload history"
+                  : "Audit and ingestion issues";
+          ["dashboard", "review", "uploads", "audit"].forEach((name) => {
+            document.querySelector(`#${name}-view`).classList.toggle("hidden", name !== view);
+          });
+        });
+      });
+
+      loadAll();
+    </script>
+  </body>
+</html>

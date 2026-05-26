@@ -1,0 +1,6 @@
+Werk,Buchungsdatum,Material Document,Kraftstoff,Menge,Einheit,Cost Center,Vendor
+PLT-DE-01,01.05.2026,4900001234,Diesel,5000,L,OPS-4100,ACME Fuels GmbH
+PLT-IN-02,2026/05/03,4900001235,Natural Gas,24500,therm,OPS-5200,Delhi Gas Utility
+PLT-US-03,05-06-2026,4900001236,Diesel,-75,L,OPS-4100,ACME Fuels US
+PLT-DE-01,32/13/2026,4900001237,BioFuel-X,900,ltr,OPS-4300,Unknown Vendor
+

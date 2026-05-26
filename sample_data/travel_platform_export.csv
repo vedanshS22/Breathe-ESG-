@@ -1,0 +1,6 @@
+Trip ID,Category,Trip Date,From Airport,To Airport,Distance Km,Unit,Nights,Employee Region
+T-1001,Flight,2026-05-01,DEL,LHR,,km,,India
+T-1002,Hotel,2026-05-03,,,,,4,UK
+T-1003,Ground,2026-05-04,,,48,km,,UK
+T-1004,Flight,2026-05-05,XXXINVALID,SFO,,km,,US
+

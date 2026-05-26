@@ -1,0 +1,6 @@
+Account Number,Meter ID,Billing Start,Billing End,kWh,Unit,Tariff,Service Address
+U-1001,MTR-DEL-001,2026-04-01,2026-04-30,12450,kWh,HT Industrial,Plant Delhi
+U-1001,MTR-DEL-001,2026-05-01,2026-05-31,999999999,kWh,HT Industrial,Plant Delhi
+U-1002,MTR-BLR-004,04/15/2026,05/14/2026,8800,kWh,Commercial,Warehouse Bangalore
+U-1003,,2026-05-01,2026-04-30,1200,kWh,Commercial,Office Mumbai
+

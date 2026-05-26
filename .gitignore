@@ -1,0 +1,13 @@
+.venv/
+.tools/
+__pycache__/
+*.pyc
+*.sqlite3
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+backend/static_src/
+*.log
+frontend/node_modules/
+frontend/dist/
+.env
