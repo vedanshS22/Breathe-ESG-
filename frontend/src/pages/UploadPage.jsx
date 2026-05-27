@@ -33,8 +33,9 @@ export default function UploadPage() {
   }, [companies.data, companyId]);
 
   async function handleCreateCompany() {
-    const company = await createCompany.mutateAsync(companyName);
+    const company = await createCompany.mutateAsync(companyName.trim());
     setCompanyId(company.id);
+    setCompanyName("");
   }
 
   async function handleUpload(event) {
@@ -100,30 +101,34 @@ export default function UploadPage() {
             </label>
           </div>
 
-          {!companies.data?.length ? (
-            <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
-              <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
-                <Building2 size={16} />
-                Demo company
-              </div>
-              <div className="flex gap-2">
-                <input
-                  className="h-10 min-w-0 flex-1 rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-emerald-500"
-                  value={companyName}
-                  onChange={(event) => setCompanyName(event.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={handleCreateCompany}
-                  className="inline-flex h-10 items-center gap-2 rounded-md bg-slate-900 px-3 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
-                  disabled={createCompany.isPending || !companyName.trim()}
-                >
-                  <Plus size={16} />
-                  Create
-                </button>
-              </div>
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+              <Building2 size={16} />
+              New company
             </div>
-          ) : null}
+            <div className="flex gap-2">
+              <input
+                className="h-10 min-w-0 flex-1 rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-emerald-500"
+                value={companyName}
+                placeholder="Company name"
+                onChange={(event) => setCompanyName(event.target.value)}
+              />
+              <button
+                type="button"
+                onClick={handleCreateCompany}
+                className="inline-flex h-10 items-center gap-2 rounded-md bg-slate-900 px-3 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+                disabled={createCompany.isPending || !companyName.trim()}
+              >
+                <Plus size={16} />
+                Create
+              </button>
+            </div>
+            {createCompany.error ? (
+              <div className="mt-2 text-sm text-rose-700">
+                {createCompany.error.response?.data?.error || createCompany.error.message}
+              </div>
+            ) : null}
+          </div>
 
           <UploadDropzone file={file} onFileChange={setFile} />
 

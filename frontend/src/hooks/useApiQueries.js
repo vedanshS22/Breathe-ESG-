@@ -24,7 +24,18 @@ export function useCreateCompany() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createCompany,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies"] }),
+    onSuccess: (company) => {
+      queryClient.setQueryData(["companies"], (companies = []) => {
+        const existingCompanies = Array.isArray(companies) ? companies : [];
+        if (existingCompanies.some((existingCompany) => existingCompany.id === company.id)) {
+          return existingCompanies;
+        }
+        return [...existingCompanies, company].sort((firstCompany, secondCompany) =>
+          firstCompany.name.localeCompare(secondCompany.name),
+        );
+      });
+      return queryClient.invalidateQueries({ queryKey: ["companies"] });
+    },
   });
 }
 
