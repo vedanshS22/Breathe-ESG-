@@ -32,6 +32,7 @@ export default function UploadPage() {
   const deleteAllIngestionData = useDeleteAllIngestionData();
   const [companyId, setCompanyId] = useState("");
   const [sourceType, setSourceType] = useState("sap");
+  const [categorizationMode, setCategorizationMode] = useState("manual");
   const [file, setFile] = useState(null);
   const [companyName, setCompanyName] = useState("");
   const [lastUpload, setLastUpload] = useState(null);
@@ -49,7 +50,7 @@ export default function UploadPage() {
   async function handleUpload(event) {
     event.preventDefault();
     if (!companyId || !file) return;
-    const result = await uploadSource.mutateAsync({ companyId, sourceType, file });
+    const result = await uploadSource.mutateAsync({ companyId, sourceType, categorizationMode, file });
     setLastUpload(result);
     setFile(null);
   }
@@ -99,6 +100,7 @@ export default function UploadPage() {
                 className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-emerald-500"
                 value={sourceType}
                 onChange={(event) => setSourceType(event.target.value)}
+                disabled={categorizationMode === "auto"}
               >
                 {sourceOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -107,6 +109,39 @@ export default function UploadPage() {
                 ))}
               </select>
             </label>
+          </div>
+
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-sm font-medium text-slate-700">Categorization mode</div>
+                <div className="text-xs text-slate-500">
+                  Manual uses the dropdown. Auto infers source type and Scope 1/2/3 from the file.
+                </div>
+              </div>
+              <div className="inline-flex rounded-md border border-slate-300 bg-white p-1">
+                <button
+                  type="button"
+                  className={[
+                    "rounded px-3 py-1.5 text-sm font-medium",
+                    categorizationMode === "manual" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100",
+                  ].join(" ")}
+                  onClick={() => setCategorizationMode("manual")}
+                >
+                  Manual
+                </button>
+                <button
+                  type="button"
+                  className={[
+                    "rounded px-3 py-1.5 text-sm font-medium",
+                    categorizationMode === "auto" ? "bg-emerald-600 text-white" : "text-slate-600 hover:bg-slate-100",
+                  ].join(" ")}
+                  onClick={() => setCategorizationMode("auto")}
+                >
+                  Auto AI
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
@@ -149,6 +184,9 @@ export default function UploadPage() {
           {lastUpload ? (
             <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">
               <div className="font-semibold">{lastUpload.original_filename} processed</div>
+              <div className="mt-1 text-xs">
+                {lastUpload.company_name} → {lastUpload.source_type} upload → records
+              </div>
               <div className="mt-2 grid gap-2 sm:grid-cols-4">
                 <span>{lastUpload.row_count} rows ingested</span>
                 <span>{lastUpload.successful_count} normalized</span>
@@ -160,7 +198,9 @@ export default function UploadPage() {
 
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm text-slate-500">
-              {selectedCompany ? `Target: ${selectedCompany.name}` : "Select a company before upload"}
+              {selectedCompany
+                ? `Tenant path: ${selectedCompany.name} → ${categorizationMode === "auto" ? "auto-classified upload" : sourceType} → records`
+                : "Select a company before upload"}
             </div>
             <button
               type="submit"
@@ -190,6 +230,9 @@ export default function UploadPage() {
             {(uploads.data || []).slice(0, 8).map((upload) => (
               <div key={upload.id} className="border-b border-slate-100 p-3 last:border-b-0">
                 <div className="truncate text-sm font-medium text-slate-900">{upload.original_filename}</div>
+                <div className="mt-1 text-xs text-slate-500">
+                  {upload.company_name} → {upload.source_type} → records
+                </div>
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <span className="text-xs text-slate-500">
                     {upload.successful_count}/{upload.row_count} normalized · {upload.suspicious_count} suspicious ·{" "}

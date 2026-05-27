@@ -22,10 +22,10 @@ class UploadListView(APIView):
             raw_upload = service.process_upload(
                 company_id=request.data.get("company_id"),
                 source_type=request.data.get("source_type"),
+                categorization_mode=request.data.get("categorization_mode", "manual"),
                 uploaded_file=request.FILES.get("file"),
             )
         except IngestionError as exc:
             return failure(str(exc), status.HTTP_400_BAD_REQUEST)
 
         return success(RawUploadSerializer(raw_upload).data, status.HTTP_201_CREATED)
-

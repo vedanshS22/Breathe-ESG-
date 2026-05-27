@@ -25,10 +25,11 @@ export async function fetchUploads() {
   return data.data.results;
 }
 
-export async function uploadSource({ companyId, sourceType, file }) {
+export async function uploadSource({ companyId, sourceType, categorizationMode, file }) {
   const form = new FormData();
   form.append("company_id", companyId);
   form.append("source_type", sourceType);
+  form.append("categorization_mode", categorizationMode || "manual");
   form.append("file", file);
   const { data } = await apiClient.post("/uploads/", form, {
     headers: { "Content-Type": "multipart/form-data" },

@@ -3,6 +3,7 @@ from django.db import transaction
 
 from emissions.models import Company, DataSource, EmissionRecord, IngestionIssue, RawUpload
 from services.exceptions import IngestionError, ParserError
+from services.categorization.ai_categorizer import AICategorizer
 from services.normalizers.registry import get_normalizer
 from services.parsers.registry import get_parser
 from validators.validation_engine import evaluate_record
@@ -16,8 +17,11 @@ SOURCE_DISPLAY_NAMES = {
 
 
 class UploadService:
-    def process_upload(self, *, company_id, source_type, uploaded_file):
-        if source_type not in SOURCE_DISPLAY_NAMES:
+    def process_upload(self, *, company_id, source_type, uploaded_file, categorization_mode="manual"):
+        categorization_mode = categorization_mode or "manual"
+        if categorization_mode not in {"manual", "auto"}:
+            raise IngestionError("Unsupported categorization mode.")
+        if categorization_mode == "manual" and source_type not in SOURCE_DISPLAY_NAMES:
             raise IngestionError("Unsupported source type.")
         if not uploaded_file:
             raise IngestionError("File is required.")
@@ -29,6 +33,14 @@ class UploadService:
             raise IngestionError("Uploaded file exceeds the configured size limit.")
 
         company = self._get_company(company_id)
+        categorizer = AICategorizer()
+        source_decision = None
+        if categorization_mode == "auto":
+            source_decision = categorizer.infer_source_type(uploaded_file)
+            source_type = source_decision["source_type"]
+        if source_type not in SOURCE_DISPLAY_NAMES:
+            raise IngestionError("Unsupported source type.")
+
         parser = get_parser(source_type, uploaded_file.name)
         normalizer = get_normalizer(source_type)
 
@@ -90,6 +102,11 @@ class UploadService:
 
                 try:
                     normalized = normalizer.normalize(row)
+                    normalized = categorizer.categorize_record(
+                        normalized,
+                        source_decision,
+                        categorization_mode,
+                    )
                     validation = evaluate_record(normalized)
                     EmissionRecord.objects.create(
                         company=company,

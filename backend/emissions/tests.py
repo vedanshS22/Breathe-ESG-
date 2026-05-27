@@ -33,6 +33,52 @@ class IngestionWorkflowTests(TestCase):
         self.assertEqual(raw_upload.records.filter(is_suspicious=True).count(), 1)
         self.assertTrue(raw_upload.file.name)
 
+    def test_auto_categorization_infers_sap_scope_and_source(self):
+        uploaded_file = SimpleUploadedFile(
+            "unknown_source.csv",
+            (
+                "Werk,Buchungsdatum,Material Document,Kraftstoff,Menge,Einheit\n"
+                "PLT-01,2026-05-01,4900001,Diesel,5000,L\n"
+            ).encode("utf-8"),
+            content_type="text/csv",
+        )
+
+        raw_upload = UploadService().process_upload(
+            company_id=self.company.id,
+            source_type="utility",
+            categorization_mode="auto",
+            uploaded_file=uploaded_file,
+        )
+        record = raw_upload.records.first()
+
+        self.assertEqual(raw_upload.source.source_type, "sap")
+        self.assertEqual(record.scope, "Scope 1")
+        self.assertEqual(record.category, "Fuel")
+        self.assertEqual(record.metadata["categorization"]["mode"], "auto")
+
+    def test_auto_categorization_infers_utility_scope_and_source(self):
+        uploaded_file = SimpleUploadedFile(
+            "portal_export.csv",
+            (
+                "Meter ID,Billing Start,Billing End,Usage kWh,Unit,Tariff\n"
+                "MTR-1,2026-05-01,2026-05-31,4500,kWh,General\n"
+            ).encode("utf-8"),
+            content_type="text/csv",
+        )
+
+        raw_upload = UploadService().process_upload(
+            company_id=self.company.id,
+            source_type="sap",
+            categorization_mode="auto",
+            uploaded_file=uploaded_file,
+        )
+        record = raw_upload.records.first()
+
+        self.assertEqual(raw_upload.source.source_type, "utility")
+        self.assertEqual(record.scope, "Scope 2")
+        self.assertEqual(record.category, "Electricity")
+        self.assertEqual(record.metadata["categorization"]["mode"], "auto")
+
     def test_approval_locks_record_and_rejecting_locked_record_conflicts(self):
         raw_upload = self._ingest_one_record()
         record = raw_upload.records.first()

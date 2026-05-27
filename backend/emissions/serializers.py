@@ -27,6 +27,7 @@ class DataSourceSerializer(serializers.ModelSerializer):
 class RawUploadSerializer(serializers.ModelSerializer):
     source_type = serializers.CharField(source="source.source_type", read_only=True)
     company_id = serializers.IntegerField(source="source.company_id", read_only=True)
+    company_name = serializers.CharField(source="source.company.name", read_only=True)
     suspicious_count = serializers.SerializerMethodField()
     locked_count = serializers.SerializerMethodField()
 
@@ -37,6 +38,7 @@ class RawUploadSerializer(serializers.ModelSerializer):
             "source",
             "source_type",
             "company_id",
+            "company_name",
             "file",
             "original_filename",
             "file_size",
