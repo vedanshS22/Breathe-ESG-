@@ -3,6 +3,7 @@ import {
   approveRecord,
   createCompany,
   deleteAllIngestionData,
+  exportUrl,
   fetchAuditLogs,
   fetchCompanies,
   fetchDashboard,
@@ -12,6 +13,8 @@ import {
   rejectRecord,
   uploadSource,
 } from "../services/api.js";
+
+export { exportUrl };
 
 export function useCompanies() {
   return useQuery({ queryKey: ["companies"], queryFn: fetchCompanies });
@@ -35,14 +38,16 @@ export function useUploads() {
 
 export function useUploadSource() {
   const queryClient = useQueryClient();
+  const refreshIngestionViews = () => {
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    queryClient.invalidateQueries({ queryKey: ["records"] });
+    queryClient.invalidateQueries({ queryKey: ["uploads"] });
+    queryClient.invalidateQueries({ queryKey: ["issues"] });
+  };
   return useMutation({
     mutationFn: uploadSource,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      queryClient.invalidateQueries({ queryKey: ["records"] });
-      queryClient.invalidateQueries({ queryKey: ["uploads"] });
-      queryClient.invalidateQueries({ queryKey: ["issues"] });
-    },
+    onSuccess: refreshIngestionViews,
+    onError: refreshIngestionViews,
   });
 }
 

@@ -46,25 +46,31 @@ class UploadService:
                 content_type=getattr(uploaded_file, "content_type", "") or "",
             )
 
-            try:
-                rows = parser.parse(raw_upload.file)
-            except ParserError as exc:
-                raw_upload.status = RawUpload.FAILED
-                raw_upload.error_message = str(exc)
-                raw_upload.save(update_fields=["status", "error_message"])
-                IngestionIssue.objects.create(
-                    raw_upload=raw_upload,
-                    stage=IngestionIssue.PARSING,
-                    message=str(exc),
-                )
-                raise IngestionError(str(exc)) from exc
+        try:
+            rows = parser.parse(raw_upload.file)
+        except ParserError as exc:
+            raw_upload.status = RawUpload.FAILED
+            raw_upload.error_message = str(exc)
+            raw_upload.save(update_fields=["status", "error_message"])
+            IngestionIssue.objects.create(
+                raw_upload=raw_upload,
+                stage=IngestionIssue.PARSING,
+                message=str(exc),
+            )
+            raise IngestionError(str(exc)) from exc
 
-            if not rows:
-                raw_upload.status = RawUpload.FAILED
-                raw_upload.error_message = "No operational rows found."
-                raw_upload.save(update_fields=["status", "error_message"])
-                raise IngestionError("No operational rows found.")
+        if not rows:
+            raw_upload.status = RawUpload.FAILED
+            raw_upload.error_message = "No operational rows found."
+            raw_upload.save(update_fields=["status", "error_message"])
+            IngestionIssue.objects.create(
+                raw_upload=raw_upload,
+                stage=IngestionIssue.PARSING,
+                message="No operational rows found.",
+            )
+            raise IngestionError("No operational rows found.")
 
+        with transaction.atomic():
             success_count = 0
             failed_count = 0
 
@@ -133,4 +139,3 @@ class UploadService:
             return Company.objects.get(pk=company_id)
         except Company.DoesNotExist as exc:
             raise IngestionError("Company does not exist.") from exc
-

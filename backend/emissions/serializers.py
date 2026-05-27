@@ -27,6 +27,8 @@ class DataSourceSerializer(serializers.ModelSerializer):
 class RawUploadSerializer(serializers.ModelSerializer):
     source_type = serializers.CharField(source="source.source_type", read_only=True)
     company_id = serializers.IntegerField(source="source.company_id", read_only=True)
+    suspicious_count = serializers.SerializerMethodField()
+    locked_count = serializers.SerializerMethodField()
 
     class Meta:
         model = RawUpload
@@ -44,8 +46,16 @@ class RawUploadSerializer(serializers.ModelSerializer):
             "row_count",
             "successful_count",
             "failed_count",
+            "suspicious_count",
+            "locked_count",
             "error_message",
         ]
+
+    def get_suspicious_count(self, obj):
+        return obj.records.filter(is_suspicious=True).count()
+
+    def get_locked_count(self, obj):
+        return obj.records.filter(locked=True).count()
 
 
 class EmissionRecordSerializer(serializers.ModelSerializer):
@@ -125,4 +135,3 @@ class AuditLogSerializer(serializers.ModelSerializer):
             "changed_by",
             "timestamp",
         ]
-

@@ -41,6 +41,16 @@ export async function fetchRecords(params = {}) {
   return data.data;
 }
 
+export function exportUrl(kind, params = {}) {
+  const search = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      search.set(key, value);
+    }
+  });
+  return `${apiClient.defaults.baseURL}/records/export/${kind}/?${search.toString()}`;
+}
+
 export async function approveRecord(recordId) {
   const { data } = await apiClient.post(`/records/${recordId}/approve/`, {
     actor: "analyst@breathe.local",

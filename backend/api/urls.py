@@ -5,6 +5,8 @@ from api.views.company_views import CompanyListView
 from api.views.dashboard_views import DashboardView
 from api.views.record_views import (
     ApproveRecordView,
+    ExportNormalizedRecordsView,
+    ExportRawRecordsView,
     RecordDetailView,
     RecordListView,
     RejectRecordView,
@@ -19,6 +21,8 @@ urlpatterns = [
     path("uploads/", UploadListView.as_view(), name="uploads"),
     path("records/", RecordListView.as_view(), name="records"),
     path("records/suspicious/", SuspiciousRecordListView.as_view(), name="suspicious-records"),
+    path("records/export/raw/", ExportRawRecordsView.as_view(), name="export-raw-records"),
+    path("records/export/normalized/", ExportNormalizedRecordsView.as_view(), name="export-normalized-records"),
     path("records/<int:record_id>/", RecordDetailView.as_view(), name="record-detail"),
     path("records/<int:record_id>/approve/", ApproveRecordView.as_view(), name="approve-record"),
     path("records/<int:record_id>/reject/", RejectRecordView.as_view(), name="reject-record"),

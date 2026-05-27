@@ -26,6 +26,7 @@ export default function UploadPage() {
   const [sourceType, setSourceType] = useState("sap");
   const [file, setFile] = useState(null);
   const [companyName, setCompanyName] = useState("Northstar Manufacturing");
+  const [lastUpload, setLastUpload] = useState(null);
 
   const selectedCompany = useMemo(() => {
     return companies.data?.find((company) => String(company.id) === String(companyId));
@@ -39,15 +40,23 @@ export default function UploadPage() {
   async function handleUpload(event) {
     event.preventDefault();
     if (!companyId || !file) return;
-    await uploadSource.mutateAsync({ companyId, sourceType, file });
+    const result = await uploadSource.mutateAsync({ companyId, sourceType, file });
+    setLastUpload(result);
     setFile(null);
   }
 
   async function handleDeleteAll() {
-    if (!window.confirm("Delete all uploaded files, normalized records, audit logs, and ingestion issues?")) {
+    const confirmed = window.confirm(
+      "Delete all ingestion data? This removes raw uploads, normalized records, audit logs, and ingestion issues. This cannot be undone.",
+    );
+    if (!confirmed) {
+      return;
+    }
+    if (window.prompt('Type DELETE ALL to confirm this destructive action.') !== "DELETE ALL") {
       return;
     }
     await deleteAllIngestionData.mutateAsync();
+    setLastUpload(null);
   }
 
   return (
@@ -124,6 +133,18 @@ export default function UploadPage() {
             </div>
           ) : null}
 
+          {lastUpload ? (
+            <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">
+              <div className="font-semibold">{lastUpload.original_filename} processed</div>
+              <div className="mt-2 grid gap-2 sm:grid-cols-4">
+                <span>{lastUpload.row_count} rows ingested</span>
+                <span>{lastUpload.successful_count} normalized</span>
+                <span>{lastUpload.suspicious_count} suspicious</span>
+                <span>{lastUpload.failed_count} failed</span>
+              </div>
+            </div>
+          ) : null}
+
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm text-slate-500">
               {selectedCompany ? `Target: ${selectedCompany.name}` : "Select a company before upload"}
@@ -149,13 +170,17 @@ export default function UploadPage() {
           >
             Delete All Ingestion Data
           </button>
+          <div className="rounded-md border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">
+            Deletes raw files, normalized records, audit logs, and issue history. This cannot be undone.
+          </div>
           <div className="rounded-md border border-slate-200 bg-white">
             {(uploads.data || []).slice(0, 8).map((upload) => (
               <div key={upload.id} className="border-b border-slate-100 p-3 last:border-b-0">
                 <div className="truncate text-sm font-medium text-slate-900">{upload.original_filename}</div>
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <span className="text-xs text-slate-500">
-                    {upload.successful_count}/{upload.row_count} rows
+                    {upload.successful_count}/{upload.row_count} normalized · {upload.suspicious_count} suspicious ·{" "}
+                    {upload.failed_count} failed
                   </span>
                   <StatusBadge status={upload.status} />
                 </div>

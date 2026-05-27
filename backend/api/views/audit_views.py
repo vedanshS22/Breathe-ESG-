@@ -14,7 +14,27 @@ class AuditLogListView(APIView):
 class IngestionIssueListView(APIView):
     def get(self, request):
         issues = IngestionIssue.objects.select_related("raw_upload").all()[:100]
-        return success({"results": IngestionIssueSerializer(issues, many=True).data})
+        hard_issues = IngestionIssueSerializer(issues, many=True).data
+        remaining = max(0, 100 - len(hard_issues))
+        suspicious_records = (
+            EmissionRecord.objects.select_related("raw_upload")
+            .filter(is_suspicious=True)
+            .order_by("-created_at", "-id")[:remaining]
+        )
+        validation_issues = [
+            {
+                "id": f"validation-{record.id}",
+                "raw_upload": record.raw_upload_id,
+                "upload_filename": record.raw_upload.original_filename,
+                "stage": "validation",
+                "row_number": record.source_row_number,
+                "message": record.suspicious_reason,
+                "raw_data": record.raw_data,
+                "created_at": record.created_at,
+            }
+            for record in suspicious_records
+        ]
+        return success({"results": hard_issues + validation_issues})
 
 
 class DeleteAllIngestionDataView(APIView):

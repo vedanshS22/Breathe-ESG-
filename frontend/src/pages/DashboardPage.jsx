@@ -27,11 +27,13 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
         <MetricCard label="Uploads" value={data?.counts.uploads} tone="sky" />
         <MetricCard label="Pending" value={data?.counts.pending} tone="amber" />
         <MetricCard label="Suspicious" value={data?.counts.suspicious} tone="rose" />
         <MetricCard label="Approved" value={data?.counts.approved} tone="emerald" />
+        <MetricCard label="Rejected" value={data?.counts.rejected} tone="rose" />
+        <MetricCard label="Locked" value={data?.counts.locked} tone="slate" />
       </div>
 
       <section className="space-y-3">
@@ -48,7 +50,7 @@ export default function DashboardPage() {
         )}
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-3">
         <section className="space-y-3">
           <h2 className="text-sm font-semibold uppercase text-slate-600">Recent uploads</h2>
           <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
@@ -61,7 +63,8 @@ export default function DashboardPage() {
                       <div className="mt-1 flex items-center gap-2">
                         <SourcePill source={upload.source_type} />
                         <span className="text-xs text-slate-500">
-                          {upload.successful_count} records, {upload.failed_count} issues
+                          {upload.successful_count} normalized, {upload.suspicious_count} suspicious,{" "}
+                          {upload.failed_count} failed
                         </span>
                       </div>
                     </div>
@@ -89,8 +92,60 @@ export default function DashboardPage() {
             </div>
           </div>
         </section>
+
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase text-slate-600">Top issue reasons</h2>
+          <div className="rounded-md border border-slate-200 bg-white p-4">
+            <div className="space-y-3">
+              {(data?.top_issue_reasons || []).map((item) => (
+                <div key={item.reason} className="flex items-start justify-between gap-3">
+                  <span className="text-sm text-slate-700">{item.reason}</span>
+                  <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">
+                    {item.count}
+                  </span>
+                </div>
+              ))}
+              {!data?.top_issue_reasons?.length ? (
+                <EmptyState title="No suspicious issue patterns" detail="Clean data has no current top issues." />
+              ) : null}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase text-slate-600">Top suspicious categories</h2>
+          <div className="rounded-md border border-slate-200 bg-white p-4">
+            <div className="space-y-3">
+              {(data?.top_suspicious_categories || []).map((item) => (
+                <div key={item.category} className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-700">{item.category}</span>
+                  <span className="text-sm font-semibold text-slate-900">{item.count}</span>
+                </div>
+              ))}
+              {!data?.top_suspicious_categories?.length ? <EmptyState title="No suspicious categories" /> : null}
+            </div>
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase text-slate-600">Top failed units</h2>
+          <div className="rounded-md border border-slate-200 bg-white p-4">
+            <div className="space-y-3">
+              {(data?.top_failed_units || []).map((item) => (
+                <div key={item.unit} className="flex items-center justify-between">
+                  <span className="font-mono text-sm text-slate-700">{item.unit}</span>
+                  <span className="text-sm font-semibold text-slate-900">{item.count}</span>
+                </div>
+              ))}
+              {!data?.top_failed_units?.length ? (
+                <EmptyState title="No unknown units" detail="Unit mappings are currently handling uploaded data." />
+              ) : null}
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
 }
-

@@ -2,7 +2,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from emissions.models import Company, EmissionRecord, RawUpload
+from emissions.models import Company, EmissionRecord, IngestionIssue, RawUpload
 from services.ingestion.upload_service import UploadService
 
 
@@ -81,12 +81,71 @@ class IngestionWorkflowTests(TestCase):
         self.assertEqual(EmissionRecord.objects.count(), 0)
         self.assertEqual(RawUpload.objects.count(), 0)
 
-    def _ingest_one_record(self):
+    def test_missing_required_column_persists_failed_upload_issue(self):
+        uploaded_file = SimpleUploadedFile(
+            "bad_sap.csv",
+            (
+                "Werk,Buchungsdatum,Material Document,Kraftstoff,Einheit\n"
+                "PLT-01,2026-05-01,4900001,Diesel,L\n"
+            ).encode("utf-8"),
+            content_type="text/csv",
+        )
+        client = APIClient()
+
+        response = client.post(
+            "/api/uploads/",
+            {"company_id": self.company.id, "source_type": "sap", "file": uploaded_file},
+            format="multipart",
+            HTTP_HOST="localhost",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(RawUpload.objects.count(), 1)
+        self.assertEqual(RawUpload.objects.first().status, RawUpload.FAILED)
+        self.assertEqual(IngestionIssue.objects.count(), 1)
+
+    def test_ingestion_issues_endpoint_includes_validation_warnings(self):
+        raw_upload = self._ingest_one_record(
+            quantity="-25",
+            date_value="32/13/2026",
+        )
+        record = raw_upload.records.first()
+        self.assertTrue(record.is_suspicious)
+        client = APIClient()
+
+        response = client.get("/api/ingestion-issues/", HTTP_HOST="localhost")
+
+        self.assertEqual(response.status_code, 200)
+        results = response.json()["data"]["results"]
+        self.assertEqual(results[0]["stage"], "validation")
+        self.assertIn("Negative quantity", results[0]["message"])
+
+    def test_therm_is_valid_unit_not_suspicious(self):
+        raw_upload = self._ingest_one_record(quantity="24500", unit="therm")
+        record = raw_upload.records.first()
+
+        self.assertEqual(record.normalized_unit, "therm")
+        self.assertFalse(record.is_suspicious)
+        self.assertEqual(record.suspicious_reason, "")
+
+    def test_raw_and_normalized_exports_are_downloadable(self):
+        self._ingest_one_record()
+        client = APIClient()
+
+        raw_response = client.get("/api/records/export/raw/", HTTP_HOST="localhost")
+        normalized_response = client.get("/api/records/export/normalized/", HTTP_HOST="localhost")
+
+        self.assertEqual(raw_response.status_code, 200)
+        self.assertEqual(normalized_response.status_code, 200)
+        self.assertIn("raw_data_json", raw_response.content.decode("utf-8"))
+        self.assertIn("normalized_unit", normalized_response.content.decode("utf-8"))
+
+    def _ingest_one_record(self, quantity="5000", date_value="2026-05-01", unit="L"):
         uploaded_file = SimpleUploadedFile(
             "sap_test.csv",
             (
                 "Werk,Buchungsdatum,Material Document,Kraftstoff,Menge,Einheit\n"
-                "PLT-01,2026-05-01,4900001,Diesel,5000,L\n"
+                f"PLT-01,{date_value},4900001,Diesel,{quantity},{unit}\n"
             ).encode("utf-8"),
             content_type="text/csv",
         )

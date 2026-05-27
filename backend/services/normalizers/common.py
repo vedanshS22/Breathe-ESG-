@@ -19,6 +19,8 @@ UNIT_MAPPINGS = {
     "gal": "gallons",
     "gallon": "gallons",
     "gallons": "gallons",
+    "therm": "therm",
+    "therms": "therm",
     "kwh": "kwh",
     "kw h": "kwh",
     "kilowatt hour": "kwh",
@@ -131,4 +133,3 @@ def airport_distance_km(origin, destination):
     a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
     c = 2 * asin(sqrt(a))
     return round(radius_km * c, 1)
-

@@ -662,6 +662,7 @@
         const payload = await uploadApi(formData);
         if (!payload.success) {
           message.textContent = payload.error || "Upload failed.";
+          await loadAll();
           return;
         }
 
