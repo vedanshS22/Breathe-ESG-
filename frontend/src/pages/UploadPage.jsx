@@ -16,6 +16,14 @@ const sourceOptions = [
   { value: "travel", label: "Corporate travel" },
 ];
 
+function getMutationErrorMessage(error) {
+  const responseData = error?.response?.data;
+  if (responseData?.validation_errors) {
+    return Object.values(responseData.validation_errors).flat().join(" ");
+  }
+  return responseData?.error || error?.message || "Request failed.";
+}
+
 export default function UploadPage() {
   const companies = useCompanies();
   const uploads = useUploads();
@@ -125,7 +133,7 @@ export default function UploadPage() {
             </div>
             {createCompany.error ? (
               <div className="mt-2 text-sm text-rose-700">
-                {createCompany.error.response?.data?.error || createCompany.error.message}
+                {getMutationErrorMessage(createCompany.error)}
               </div>
             ) : null}
           </div>
@@ -134,7 +142,7 @@ export default function UploadPage() {
 
           {uploadSource.error ? (
             <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
-              {uploadSource.error.response?.data?.error || uploadSource.error.message}
+              {getMutationErrorMessage(uploadSource.error)}
             </div>
           ) : null}
 
