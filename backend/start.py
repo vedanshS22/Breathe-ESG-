@@ -10,7 +10,9 @@ def run_migrations():
     last_error = None
     for attempt in range(1, 11):
         try:
+            print(f"Running database migrations, attempt {attempt}/10...", flush=True)
             call_command("migrate", interactive=False, verbosity=1)
+            print("Database migrations finished.", flush=True)
             return
         except Exception as exc:
             last_error = exc
@@ -22,6 +24,7 @@ def run_migrations():
 def main():
     run_migrations()
     port = os.getenv("PORT", "8000")
+    print(f"Starting gunicorn on 0.0.0.0:{port}...", flush=True)
     os.execvp(
         "gunicorn",
         [
