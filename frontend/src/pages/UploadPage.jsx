@@ -25,7 +25,7 @@ export default function UploadPage() {
   const [companyId, setCompanyId] = useState("");
   const [sourceType, setSourceType] = useState("sap");
   const [file, setFile] = useState(null);
-  const [companyName, setCompanyName] = useState("Northstar Manufacturing");
+  const [companyName, setCompanyName] = useState("");
   const [lastUpload, setLastUpload] = useState(null);
 
   const selectedCompany = useMemo(() => {

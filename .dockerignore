@@ -1,0 +1,13 @@
+.git
+.tools
+.venv
+__pycache__
+*.pyc
+*.sqlite3
+*.log
+backend/db.sqlite3
+backend/media
+backend/staticfiles
+backend/static_src
+frontend/dist
+frontend/node_modules

@@ -81,6 +81,20 @@ class IngestionWorkflowTests(TestCase):
         self.assertEqual(EmissionRecord.objects.count(), 0)
         self.assertEqual(RawUpload.objects.count(), 0)
 
+    def test_existing_company_create_returns_existing_company(self):
+        client = APIClient()
+
+        response = client.post(
+            "/api/companies/",
+            {"name": " Test Manufacturing "},
+            format="json",
+            HTTP_HOST="localhost",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Company.objects.filter(name="Test Manufacturing").count(), 1)
+        self.assertEqual(response.json()["data"]["id"], self.company.id)
+
     def test_missing_required_column_persists_failed_upload_issue(self):
         uploaded_file = SimpleUploadedFile(
             "bad_sap.csv",
