@@ -2,11 +2,13 @@ import os
 import sys
 import time
 
+import django
 from django.core.management import call_command
 
 
 def run_migrations():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    django.setup()
     last_error = None
     for attempt in range(1, 11):
         try:
