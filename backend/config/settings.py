@@ -67,10 +67,14 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
     DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
 else:
+    sqlite_path = os.getenv("SQLITE_DB_PATH")
+    sqlite_name = Path(sqlite_path) if sqlite_path else BASE_DIR / "db.sqlite3"
+    if not DEBUG and not sqlite_path:
+        sqlite_name = Path("/tmp/breathe_esg.sqlite3")
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+            "NAME": sqlite_name,
         }
     }
 
@@ -92,7 +96,7 @@ STATICFILES_DIRS = [BASE_DIR / "static_src"]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", BASE_DIR / "media" if DEBUG else "/tmp/breathe_esg_media"))
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
